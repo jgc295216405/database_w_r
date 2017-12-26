@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016. NetEase, Inc.
+  ~ Author: Ruijin Ma
+  ~ All rights reserved.
+  ~
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:annotation-config/>
+
+    <context:component-scan base-package ="com.netease.cloud" />
+
+    <!-- 多数据源配置 -->
+    <bean id ="db1" class= "org.apache.commons.dbcp.BasicDataSource" >
+        <property name ="driverClassName" value= "com.mysql.jdbc.Driver"></property >
+        <property name ="url" value= "jdbc:mysql://10.240.193.90:3306/db1" ></property >
+        <property name ="username" value="root"></property>
+        <property name ="password" value="111111"></property>
+    </bean >
+    <bean id ="db2" class= "org.apache.commons.dbcp.BasicDataSource" >
+        <property name ="driverClassName" value= "com.mysql.jdbc.Driver"></property >
+        <property name ="url" value= "jdbc:mysql://10.240.192.53:3306/db1" ></property >
+        <property name ="username" value="root"></property>
+        <property name ="password" value="111111"></property>
+    </bean >
+
+    <!-- mybatis -->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+        <property name="basePackage" value="com.netease.cloud.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"/>
+    </bean>
+    <!-- 动态配置数据源 -->
+    <bean id ="dataSource" class= "com.netease.cloud.dao.dynamic.DynamicDataSource" >
+        <property name ="targetDataSources">
+            <map key-type ="java.lang.String">
+                <entry value-ref ="db1" key= "db_admin"></entry>
+                <entry value-ref ="db2" key= "db_slave"></entry>
+            </map>
+        </property>
+        <property name ="defaultTargetDataSource" ref= "db1"></property >
+        <!-- 默认使用ds1的数据源 -->
+    </bean >
+</beans>
