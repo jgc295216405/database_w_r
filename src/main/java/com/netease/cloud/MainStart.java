@@ -13,15 +13,12 @@ public class MainStart {
     public static void main(String[] args) {
         ApplicationContext applicationContext=new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
         UserService userService= (UserService) applicationContext.getBean("userServiceImpl");
-//        userService.deleteAll();
-        int i=300000;
-        for (;i<1000000;i++){
-//            DataSourceContextHolder.setDbType(DbType.db_admin.name());
-            int id=userService.insertStudent("stu"+i);
+
+            DataSourceContextHolder.setDbType(DbType.db_admin.name());
+            int id=userService.insertStudent("stu");
             userService.insertStudentGrade(id,"grade"+new Random().nextInt(10));
-//            DataSourceContextHolder.setDbType(DbType.db_slave.name());
-//            System.out.println(userService.selectStudent("jgc2test"+i));
+            DataSourceContextHolder.setDbType(DbType.db_slave.name());
+            System.out.println(userService.selectStudent("jgc2test"));
         }
 
     }
-}
